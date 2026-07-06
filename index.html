@@ -83,9 +83,8 @@
   </header>
 
   <nav class="switcher" role="group" aria-label="Choose view">
-    <button data-view="aave" aria-pressed="false">AaveSolver</button>
+    <button data-view="aave" aria-pressed="true">AaveSolver</button>
     <button data-view="liquidity" aria-pressed="false">LiquiditySolver</button>
-    <button data-view="both" aria-pressed="true">Both</button>
   </nav>
   <p class="viewNote" id="viewNote"></p>
 
@@ -118,11 +117,10 @@
 
 <script>
 'use strict';
-const views = { aave: ['aave'], liquidity: ['liquidity'], both: ['aave', 'liquidity'] };
+const views = { aave: ['aave'], liquidity: ['liquidity'] };
 const notes = {
-  aave: 'Showing AaveSolver only.',
-  liquidity: 'Showing LiquiditySolver only.',
-  both: 'Showing both desks, stacked, for side-by-side comparison.',
+  aave: 'Showing AaveSolver.',
+  liquidity: 'Showing LiquiditySolver.',
 };
 
 function autoSize(iframe) {
@@ -167,7 +165,7 @@ for (const btn of document.querySelectorAll('.switcher button')) {
   btn.addEventListener('click', () => setView(btn.dataset.view));
 }
 
-const initial = ['aave', 'liquidity', 'both'].includes(location.hash.slice(1)) ? location.hash.slice(1) : 'both';
+const initial = ['aave', 'liquidity'].includes(location.hash.slice(1)) ? location.hash.slice(1) : 'aave';
 setView(initial);
 </script>
 </body>
