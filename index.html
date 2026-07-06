@@ -1,0 +1,174 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Borrowing-Asset Solver — Desk Simulation</title>
+<style>
+  :root {
+    --surface: #fcfcfb; --page: #f9f9f7;
+    --ink: #0b0b0b; --ink-2: #52514e; --muted: #898781;
+    --grid: #e1e0d9; --axis: #c3c2b7; --border: rgba(11,11,11,0.10);
+    --eth: #2a78d6; --rebal: #4a3aa7;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --surface: #1a1a19; --page: #0d0d0d;
+      --ink: #ffffff; --ink-2: #c3c2b7; --muted: #898781;
+      --grid: #2c2c2a; --axis: #383835; --border: rgba(255,255,255,0.10);
+      --eth: #3987e5; --rebal: #9085e9;
+    }
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    background: var(--page); color: var(--ink);
+    font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+  }
+  .shell { max-width: 1220px; margin: 0 auto; padding: 28px 24px 48px; }
+  .masthead { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; flex-wrap: wrap; margin-bottom: 8px; }
+  .eyebrow { text-transform: uppercase; letter-spacing: 0.08em; font-size: 10.5px; font-weight: 600; color: var(--muted); margin: 0 0 4px; }
+  h1 { font-size: 22px; font-weight: 650; margin: 0 0 6px; letter-spacing: -0.01em; text-wrap: balance; }
+  .sub { color: var(--ink-2); font-size: 13.5px; max-width: 74ch; line-height: 1.55; margin: 0; }
+  a { color: var(--eth); }
+
+  .switcher {
+    display: inline-flex; gap: 2px; padding: 3px; margin: 20px 0 4px;
+    background: var(--surface); border: 1px solid var(--border); border-radius: 9px;
+  }
+  .switcher button {
+    font: inherit; font-size: 13px; font-weight: 550; color: var(--ink-2);
+    background: none; border: none; border-radius: 6px; padding: 7px 16px; cursor: pointer;
+  }
+  .switcher button:hover { color: var(--ink); }
+  .switcher button[aria-pressed="true"] { background: var(--ink); color: var(--page); }
+  .switcher button:focus-visible { outline: 2px solid var(--eth); outline-offset: 2px; }
+
+  .viewNote { font-size: 12.5px; color: var(--muted); margin: 0 0 20px; }
+
+  .frames { display: flex; flex-direction: column; gap: 28px; }
+  .frameCard { display: none; }
+  .frameCard.active { display: block; }
+  .frameHead {
+    display: flex; align-items: baseline; gap: 10px; margin: 0 0 10px;
+    padding-bottom: 8px; border-bottom: 1px solid var(--border);
+  }
+  .frameHead .tag {
+    font-size: 10.5px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase;
+    color: var(--page); background: var(--eth); padding: 3px 8px; border-radius: 5px;
+  }
+  .frameHead .tag.alt { background: var(--rebal); }
+  .frameHead h2 { font-size: 15px; font-weight: 650; margin: 0; }
+  .frameHead .desc { font-size: 12.5px; color: var(--muted); margin: 0; }
+  iframe.embed {
+    width: 100%; border: 1px solid var(--border); border-radius: 8px;
+    background: var(--surface); display: block; min-height: 400px;
+  }
+
+  footer { margin-top: 36px; padding-top: 16px; border-top: 1px solid var(--border); font-size: 12px; color: var(--muted); }
+  footer code { background: var(--surface); border: 1px solid var(--border); border-radius: 4px; padding: 1px 5px; font-size: 11.5px; }
+</style>
+</head>
+<body>
+<div class="shell">
+  <header class="masthead">
+    <div>
+      <p class="eyebrow">Borrowing-asset solver · Base ⇄ KalqiX</p>
+      <h1>Desk simulation</h1>
+      <p class="sub">Two settlement strategies replayed against the same real Base swap tape and the same starting
+      capital, so the numbers compare directly: <strong>AaveSolver</strong> borrows against an Aave position to
+      settle every trade, while <strong>LiquiditySolver</strong> settles straight out of on-chain inventory mirrored
+      across both venues. Pick a view below.</p>
+    </div>
+  </header>
+
+  <nav class="switcher" role="group" aria-label="Choose view">
+    <button data-view="aave" aria-pressed="false">AaveSolver</button>
+    <button data-view="liquidity" aria-pressed="false">LiquiditySolver</button>
+    <button data-view="both" aria-pressed="true">Both</button>
+  </nav>
+  <p class="viewNote" id="viewNote"></p>
+
+  <div class="frames" id="frames">
+    <section class="frameCard" id="card-aave" data-view="aave">
+      <div class="frameHead">
+        <span class="tag">AaveSolver</span>
+        <h2>Aave-settled solver desk</h2>
+        <p class="desc">Settles through Aave collateral/debt on Base, hedged on KalqiX.</p>
+      </div>
+      <iframe class="embed" id="frame-aave" src="aave-solver.html" title="AaveSolver dashboard" loading="lazy"></iframe>
+    </section>
+
+    <section class="frameCard" id="card-liquidity" data-view="liquidity">
+      <div class="frameHead">
+        <span class="tag alt">LiquiditySolver</span>
+        <h2>Two-sided inventory desk</h2>
+        <p class="desc">Settles from plain on-chain inventory, mirrored across Base and KalqiX. No lending market.</p>
+      </div>
+      <iframe class="embed" id="frame-liquidity" src="liquidity-solver.html" title="LiquiditySolver dashboard" loading="lazy"></iframe>
+    </section>
+  </div>
+
+  <footer>
+    Data: <code>data/trades.csv</code> — a snapshot of the <code>trades</code> table, replayed identically by both
+    dashboards. Regenerate it from your own database to update both views at once.
+    See <code>README.md</code> for how to run this locally.
+  </footer>
+</div>
+
+<script>
+'use strict';
+const views = { aave: ['aave'], liquidity: ['liquidity'], both: ['aave', 'liquidity'] };
+const notes = {
+  aave: 'Showing AaveSolver only.',
+  liquidity: 'Showing LiquiditySolver only.',
+  both: 'Showing both desks, stacked, for side-by-side comparison.',
+};
+
+function autoSize(iframe) {
+  const resize = () => {
+    try {
+      const doc = iframe.contentDocument;
+      if (doc && doc.documentElement) iframe.style.height = doc.documentElement.scrollHeight + 'px';
+    } catch (e) { /* cross-origin fallback: leave default height */ }
+  };
+  iframe.addEventListener('load', () => {
+    resize();
+    try {
+      const doc = iframe.contentDocument;
+      if (doc && iframe.contentWindow.ResizeObserver) {
+        new iframe.contentWindow.ResizeObserver(resize).observe(doc.documentElement);
+      }
+    } catch (e) {}
+  });
+  iframe._resize = resize;
+}
+
+const frameAave = document.getElementById('frame-aave');
+const frameLiquidity = document.getElementById('frame-liquidity');
+autoSize(frameAave);
+autoSize(frameLiquidity);
+
+function setView(view) {
+  for (const btn of document.querySelectorAll('.switcher button')) {
+    btn.setAttribute('aria-pressed', String(btn.dataset.view === view));
+  }
+  const shown = views[view];
+  for (const card of document.querySelectorAll('.frameCard')) {
+    card.classList.toggle('active', shown.includes(card.dataset.view));
+  }
+  document.getElementById('viewNote').textContent = notes[view];
+  if (shown.includes('aave')) frameAave._resize && frameAave._resize();
+  if (shown.includes('liquidity')) frameLiquidity._resize && frameLiquidity._resize();
+  history.replaceState(null, '', '#' + view);
+}
+
+for (const btn of document.querySelectorAll('.switcher button')) {
+  btn.addEventListener('click', () => setView(btn.dataset.view));
+}
+
+const initial = ['aave', 'liquidity', 'both'].includes(location.hash.slice(1)) ? location.hash.slice(1) : 'both';
+setView(initial);
+</script>
+</body>
+</html>
