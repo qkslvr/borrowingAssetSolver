@@ -8,8 +8,13 @@ and the same starting capital, so the results compare directly:
 - **LiquiditySolver** (`liquidity-solver.html`) — every trade settles straight out of on-chain
   inventory, mirrored across Base and KalqiX. No lending market, no interest, plain transfers.
 
-`index.html` is a one-page landing view with a switcher for **AaveSolver**, **LiquiditySolver**,
-or **Both** (stacked, for side-by-side comparison).
+`index.html` is a one-page landing view with a switcher between **AaveSolver** and
+**LiquiditySolver**.
+
+## Requirements
+
+See `requirements.txt` — in short: `git`, a static file server (Python 3 or Node.js), and a
+modern browser with JavaScript enabled. No npm/pip packages are installed; there's no build step.
 
 ## Running it
 
